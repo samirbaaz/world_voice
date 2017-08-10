@@ -19,3 +19,16 @@ python gather_service.py
 You can run this in detached mode using the following command:
 
 python gather_service.py &
+
+app_config.cfg should look like this, not includingt he dashes:
+-----------------------------
+[Mongo]
+server=localhost
+port=27017
+
+[Twitter]
+consumer_token=xxxxxxxx
+consumer_secret=xxxxxxxx
+access_key=xxxxxxxx
+access_secret=xxxxxxxx
+-----------------------------
