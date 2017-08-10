@@ -5,6 +5,8 @@ import json
 from pymongo import MongoClient, GEO2D
 import tweepy
 
+SECONDS_IN_DAY = 86400
+
 class ApplicationConnections():
 
     def __init__(self):
@@ -44,7 +46,9 @@ class ApplicationConnections():
         '''
         if 'tweets' not in client.database_names():
             db = self.mongo_client['tweets']
-            db.all_tweets.create_index([("geo", GEO2D), ("timestamp_ms", -1)])
+            db.all_tweets.create_index([("geo", GEO2D),
+                                        ("timestamp_ms", -1),
+                                        ('expireAfterSeconds', SECONDS_IN_DAY)])
         if db is None:
             db = self.mongo_client['tweets']
         self.db = db
