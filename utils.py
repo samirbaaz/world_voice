@@ -43,6 +43,7 @@ class ApplicationConnections():
         db = None
         '''
         database_names is dangerous if there are a lot of dbs.
+        TODO: Change this to GeoJSON instead of GEO2D
         '''
         if 'tweets' not in client.database_names():
             db = self.mongo_client['tweets']
