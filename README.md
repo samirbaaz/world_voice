@@ -21,6 +21,7 @@ You can run this in detached mode using the following command:
 python gather_service.py &
 
 app_config.cfg should look like this:
+    
     [Mongo]
     server=localhost
     port=27017
