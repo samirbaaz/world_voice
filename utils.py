@@ -2,7 +2,7 @@
 
 import ConfigParser
 import json
-from pymongo import MongoClient
+from pymongo import MongoClient, GEO2D
 import tweepy
 
 class ApplicationConnections():
@@ -11,6 +11,7 @@ class ApplicationConnections():
         self.config = self.get_config()
         self.mongo_client = None
         self.twitter_auth = None
+        self.db = None
     
     def get_config(self):
         '''
@@ -33,6 +34,22 @@ class ApplicationConnections():
         self.mongo_client = client
         return client
 
+    def get_db(self, db_name='tweets'):
+        if self.db is not None:
+            return self.db
+        client = self.get_mongo_client()
+        db = None
+        '''
+        database_names is dangerous if there are a lot of dbs.
+        '''
+        if 'tweets' not in client.database_names():
+            db = self.mongo_client['tweets']
+            db.all_tweets.create_index([("geo", GEO2D), ("timestamp_ms", -1)])
+        if db is None:
+            db = self.mongo_client['tweets']
+        self.db = db
+        return db
+
     def get_twitter_auth(self):
         '''
         Gets the twitter auth keys.
@@ -54,17 +71,25 @@ class MyStreamListener(tweepy.StreamListener):
 
     def __init__(self):
         self.conns = ApplicationConnections()
-        self.mongo_client = self.conns.get_mongo_client()
-        self.db = self.mongo_client['tweets']
+        self.db = self.conns.get_db()
 
     def on_data(self, data):
         '''
         Store data in mongo.
         Only storing relevant data for the task to save memory.
+        TODO: Clean up text so we don't have junk/emojis in mongo.
         '''
         json_data = json.loads(data)
-        print json_data['geo']
-        #self.db.insert()
+        if 'geo' not in json_data or json_data['geo'] is None:
+            '''
+            Choosing to ignore these tweets for now.
+            TODO: add location from palces for them.
+            '''
+            return
+        insert_data = {'geo': json_data['geo']['coordinates'],
+                       'text': json_data['text'],
+                       'timestamp_ms': int(json_data["timestamp_ms"])}
+        self.db.all_tweets.insert(insert_data)
 
     def on_error(self, status_code):
         if status_code == 420:

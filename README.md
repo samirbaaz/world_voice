@@ -10,3 +10,12 @@ To install required libraries and systems in osx:
 
     MongoDb:
     https://docs.mongodb.com/getting-started/shell/tutorial/install-mongodb-on-os-x/
+
+
+Once the above have been installed, run gather_service with the following command:
+
+python gather_service.py
+
+You can run this in detached mode using the following command:
+
+python gather_service.py &
